@@ -7,8 +7,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +23,7 @@ public class User {
     private String password;
 
     @Column(name = "email", unique = true, nullable = false)
-    private String emailAddress;
+    private String email;
 
     @Column(name = "dob", nullable = false)
     private LocalDate dob;
@@ -39,7 +41,7 @@ public class User {
         this.ID = id;
         this.username = username;
         this.password = password;
-        this.emailAddress = email;
+        this.email = email;
         this.dob = dob;
         this.registeredDate = registrationDate;
         this.xp = 0;
@@ -47,7 +49,6 @@ public class User {
     }
 
     public User() {
-        //TODO Auto-generated constructor stub
     }
 
     public long getID() {
@@ -58,8 +59,8 @@ public class User {
         return username;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getEmail() {
+        return email;
     }
 
     public String getPassword() {
@@ -86,8 +87,8 @@ public class User {
         this.username = username;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setPassword(String password) {
@@ -100,5 +101,13 @@ public class User {
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
+    }
+
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
+    }
+
+    public void setRegisteredDate(LocalDate registeredDate) {
+        this.registeredDate = registeredDate;
     }
 }

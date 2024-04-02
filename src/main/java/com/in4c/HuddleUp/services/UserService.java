@@ -2,21 +2,26 @@ package com.in4c.HuddleUp.services;
 
 import com.in4c.HuddleUp.model.User;
 import com.in4c.HuddleUp.model.Helper.LoginRequest;
+import com.in4c.HuddleUp.model.Helper.Result;
 import com.in4c.HuddleUp.model.Helper.SignupRequest;
-import com.in4c.HuddleUp.repository.UserRepo;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.in4c.HuddleUp.repository.UserRepository;
+import com.in4c.HuddleUp.model.Helper.UserInfoResponse;
 
+import java.time.LocalDate;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
 public class UserService {
-    private UserRepo userRepo;
+    private UserRepository userRepo;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
-    }
-
-    public boolean userExist(User user) {
-        return userRepo.exists(user);
     }
 
     public boolean usernameExist(String username) {
@@ -34,23 +39,40 @@ public class UserService {
         return !userRepo.existsById(userId);
     }
 
-    public User signup(SignupRequest signupRequest) {
+    public Result<?> signup(SignupRequest signupRequest) {
+        if (signupRequest.getUsername() == null || signupRequest.getPassword() == null) {
+            return new Result<>(false, null, "Error: Missing username or password!");
+        }
+        if (userRepo.existsByUsername(signupRequest.getUsername())) {
+            return new Result<>(false, null, "Error: Username is already taken!");
+        }
+        if (userRepo.existsByEmail(signupRequest.getEmail())) {
+            return new Result<>(false, null, "Error: Email is already taken!");
+        }
+
         User user = new User();
         user.setUsername(signupRequest.getUsername());
-        user.setEmailAddress(signupRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setEmail(signupRequest.getEmail());
+        user.setDob(signupRequest.getDob());
+        user.setRegisteredDate(LocalDate.now());
         user.setXp(0);
-        return userRepo.save(user);
+        user.setAuthenticated(false);
+        userRepo.save(user);
+
+        return new Result<>(true, user, "Success: User was registered successfully!");
     }
 
-    public boolean login(LoginRequest loginRequest) {
+    public Result<?> login(LoginRequest loginRequest) {
         User user = userRepo.findByUsername(loginRequest.getUsername());
-        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            user.setAuthenticated(false);
-            return false;
+        if (user == null) {
+            return new Result<>(false, null, "Error: user not found!");
+        }
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            return new Result<>(false, null, "Error: password is wrong!");
         }
         user.setAuthenticated(true);
-        return true;
+        userRepo.save(user);
+        return new Result<>(true, new UserInfoResponse(user.getID(), user.getUsername(), user.getXp()), "Success");
     }
-
 }

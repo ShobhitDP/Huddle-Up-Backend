@@ -7,14 +7,12 @@ public class SignupRequest {
     private String password;
     private String email;
     private LocalDate dob;
-    private LocalDate registrationDate;
 
-    public SignupRequest(String username, String password, String email, LocalDate dob, LocalDate registrationDate) {
+    public SignupRequest(String username, String password, String email, LocalDate dob) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.dob = dob;
-        this.registrationDate = registrationDate;
     }
 
     public String getUsername() {
@@ -49,18 +47,10 @@ public class SignupRequest {
         this.dob = dob;
     }
 
-    public LocalDate getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(LocalDate registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
     @Override
     public String toString() {
         return "SignupRequest [username=" + username + ", password=" + password + ", email=" + email + ", dob=" + dob
-                + ", registrationDate=" + registrationDate + "]";
+                + "]";
     }
 
 }
