@@ -3,12 +3,16 @@ package com.in4c.HuddleUp.services;
 import com.in4c.HuddleUp.model.GameMode;
 import com.in4c.HuddleUp.model.TagSwap;
 import com.in4c.HuddleUp.model.User;
-import com.in4c.HuddleUp.model.GameMode;
 import com.in4c.HuddleUp.model.Helper.LoginRequest;
 import com.in4c.HuddleUp.model.Helper.Result;
 import com.in4c.HuddleUp.model.Helper.SignupRequest;
+import com.in4c.HuddleUp.model.Helper.SignupResult;
+import com.in4c.HuddleUp.repository.GameModeRepository;
 import com.in4c.HuddleUp.repository.TagSwapRepository;
 import com.in4c.HuddleUp.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.in4c.HuddleUp.model.Helper.UserInfoResponse;
 
 import java.time.LocalDate;
@@ -21,14 +25,16 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private UserRepository userRepo;
     private TagSwapRepository tagSwapRepo;
-    private GameMode gameMode = new GameMode(1, "TagSwap");
+    private GameModeRepository gameModeRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder, TagSwapRepository tagSwapRepo) {
+    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder, TagSwapRepository tagSwapRepo,
+            GameModeRepository gameModeRepo) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.tagSwapRepo = tagSwapRepo;
+        this.gameModeRepo = gameModeRepo;
     }
 
     public boolean usernameExist(String username) {
@@ -39,11 +45,10 @@ public class UserService {
         return userRepo.existsByUsername(email);
     }
 
-    public boolean deleteUser(Long userId) {
-        @SuppressWarnings("unused")
-        boolean existed = userRepo.existsById(userId);
-        userRepo.deleteById(userId);
-        return !userRepo.existsById(userId);
+    @Transactional
+    public boolean deleteUser(String username) {
+        userRepo.deleteByUsername(username);
+        return userRepo.existsByUsername(username);
     }
 
     public Result<?> signup(SignupRequest signupRequest) {
@@ -67,6 +72,8 @@ public class UserService {
         user.setAuthenticated(false);
         userRepo.save(user);
 
+        GameMode gameMode = gameModeRepo.findByGamename("TagSwap");
+
         TagSwap tagSwap = new TagSwap();
         tagSwap.setUser(user);
         tagSwap.setGameMode(gameMode);
@@ -75,7 +82,10 @@ public class UserService {
         tagSwap.setLosses(0);
         tagSwapRepo.save(tagSwap);
 
-        return new Result<>(true, user, "Success: User was registered successfully!");
+        SignupResult signupResult = new SignupResult(user.getID(), user.getUsername(), user.getXp(),
+                user.getRegisteredDate());
+
+        return new Result<>(true, signupResult, "Success: User was registered successfully!");
     }
 
     public Result<?> login(LoginRequest loginRequest) {

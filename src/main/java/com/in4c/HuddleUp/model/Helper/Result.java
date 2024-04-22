@@ -16,8 +16,8 @@ public class Result<T> {
         return this.success;
     }
 
-    public void setSuccess(boolean error) {
-        this.success = error;
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     public T getData() {

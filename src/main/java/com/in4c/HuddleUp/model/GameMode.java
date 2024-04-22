@@ -22,6 +22,10 @@ public class GameMode {
         this.gamename = gamename;
     }
 
+    public GameMode() {
+        //TODO Auto-generated constructor stub
+    }
+
     public long getID() {
         return ID;
     }

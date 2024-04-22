@@ -1,10 +1,13 @@
 package com.in4c.HuddleUp.model.Helper;
 
 public class ResultWrapper<T> {
+    private boolean success;
     private T data;
     private String message;
 
-    public ResultWrapper(T data, String message) {
+    
+    public ResultWrapper(boolean success, T data, String message) {
+        this.success = success;
         this.data = data;
         this.message = message;
     }
@@ -24,4 +27,14 @@ public class ResultWrapper<T> {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    
 }
