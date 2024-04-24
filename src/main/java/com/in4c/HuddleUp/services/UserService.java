@@ -46,9 +46,22 @@ public class UserService {
     }
 
     @Transactional
-    public boolean deleteUser(String username) {
-        userRepo.deleteByUsername(username);
-        return userRepo.existsByUsername(username);
+    public Result<?> deleteUser(String username) {
+        User user = userRepo.findByUsername(username);
+        if (user != null) {
+            // Delete associated records in tag_swap table
+            tagSwapRepo.deleteByUser(user);
+
+            // Now delete the user
+            userRepo.delete(user);
+
+            if (userRepo.existsByUsername(username)) {
+                return new Result<>(false, null, "Error: user not deleted!");
+            }
+            return new Result<>(true, null, "Success: user deleted!");
+        } else {
+            return new Result<>(false, null, "Error: user not found!");
+        }
     }
 
     public Result<?> signup(SignupRequest signupRequest) {
@@ -99,5 +112,28 @@ public class UserService {
         user.setAuthenticated(true);
         userRepo.save(user);
         return new Result<>(true, new UserInfoResponse(user.getID(), user.getUsername(), user.getXp()), "Success");
+    }
+
+    public Result<?> updateUsername(String username, String updatedUsername) {
+        User user = userRepo.findByUsername(username);
+
+        // if (!user.isAuthenticated()) {
+        // return new Result<>(false, null, "User not authenticated!");
+        // }
+        user.setUsername(updatedUsername);
+
+        userRepo.save(user);
+
+        return new Result<>(true, new UserInfoResponse(user.getID(), user.getUsername(), user.getXp()),
+                "Username updated successfully!");
+    }
+
+    public Result<?> logout(String username) {
+        User user = userRepo.findByUsername(username);
+        user.setAuthenticated(false);
+
+        userRepo.save(user);
+
+        return new Result<>(true, null, "Successfully Logged out!");
     }
 }

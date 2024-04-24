@@ -19,7 +19,7 @@ public class TagSwap {
     private long id;
 
     @OneToOne(cascade = {
-            CascadeType.PERSIST,
+            CascadeType.ALL,
             CascadeType.MERGE,
             CascadeType.REFRESH,
             CascadeType.REMOVE
@@ -50,7 +50,7 @@ public class TagSwap {
     }
 
     public TagSwap() {
-        //TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
     }
 
     public long getId() {
