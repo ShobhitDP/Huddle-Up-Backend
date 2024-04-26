@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.in4c.HuddleUp.model.Helper.Result;
+import com.in4c.HuddleUp.model.Helper.UpdateUsername;
 import com.in4c.HuddleUp.model.Helper.UsernameRequest;
 import com.in4c.HuddleUp.services.UserService;
 
@@ -29,9 +30,8 @@ public class UserController {
     }
 
     @PostMapping(value = "/updateUsername")
-    public ResponseEntity<?> updateUsername(@RequestBody UsernameRequest usernameRequestOld,
-            UsernameRequest usernameNew) {
-        Result<?> res = userService.updateUsername(usernameRequestOld.getUsername(), usernameNew.getUsername());
+    public ResponseEntity<?> updateUsername(@RequestBody UpdateUsername updateUsername) {
+        Result<?> res = userService.updateUsername(updateUsername.getOldUsername(), updateUsername.getNewUsername() );
         return res.isSuccess()
                 ? new ResponseEntity<>(res, HttpStatus.OK)
                 : new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
